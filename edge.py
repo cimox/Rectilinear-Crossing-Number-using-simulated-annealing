@@ -14,3 +14,5 @@ class Edge:
         print "> Total number of edges: " % Edge.edgesCount
 
     def isSymmetric(self):
+
+        return False
