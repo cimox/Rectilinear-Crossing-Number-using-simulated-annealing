@@ -1,4 +1,5 @@
-import copy
+import plotly.plotly as py
+import plotly.graph_objs as go
 import random as rand
 from Vertex import Vertex
 from Properties import Properties
@@ -109,3 +110,29 @@ class Utility:
         pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=fixed_nodes)
         nx.draw_networkx(initialGraph, pos)
         plt.show()
+
+    def print_to_graph(self,x_axis,y_T,y_intersections,name):
+        # Create a trace
+        trace1 = go.Scatter(
+            x=x_axis,
+            y=[float(i) / max(y_intersections) for i in y_T],
+            # y=y_T,
+            name='Temperature'
+        )
+        trace2 = go.Scatter(
+            x=x_axis,
+            # y=[float(i)/max(y_intersections) for i in y_intersections],
+            y=y_intersections,
+            name='Fitness'
+        )
+
+        data = [trace2]
+
+        layout = go.Layout(
+            title='A Simple Plot',
+            xaxis=dict(
+                title='Generations'
+            )
+        )
+        fig = go.Figure(data=data, layout=layout)
+        py.image.save_as(fig, filename=name+'.png')
