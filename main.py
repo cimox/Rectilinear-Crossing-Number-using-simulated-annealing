@@ -68,37 +68,31 @@ if __name__ == "__main__":
     g = Graph(vertices,edges) # g is initial randomly generated graph
 
     g.print_HRF(True, False)
-    print g.crossingNumber, g.get_crossing_number()
+    print g.crossingNumber
 
 
-    # graph drawing
+    # graph drawing -- START --
     initialGraph = nx.complete_graph(Properties.Kn_min)
-
     fixed_pos = {}
     vertices = g.get_vertices()
     for i in range(len(vertices)):
         fixed_pos[i] = (vertices[i].x,vertices[i].y)
-    #
-    # initialGraph.add_nodes_from(fixed_pos.keys())
-    #
-    # # # add X,Y coordinates to nodes
-    # for n,p in fixed_pos.iteritems():
-    #     initialGraph.node[n]['pos'] = p
-    # print initialGraph.node
     fixed_nodes = fixed_pos.keys()
     pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=fixed_nodes)
-
     nx.draw_networkx(initialGraph, pos)
-    plt.show()
+    #if Properties.draw_graph == True:
+    #    plt.show()
+    # graph drawing -- END --
+
 
     # 3. step: loop until stop condition is met
     # stop condition:
     #   - temperature is cooled
     #   - good-enough solution has been found
-    neighbor = copy.copy(g) # new and (will be) mutated graph
-    neighbor.mutate()
-    # DEBUG:
-    #neighbor.printHRF(True,False)
+    neighbor = g.clone() # new and (will be) mutated graph
+    neighbor.mutate(True)
+
+
 
 
 

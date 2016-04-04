@@ -1,6 +1,7 @@
 import copy
 import random as rand
 from Vertex import Vertex
+from Properties import Properties
 import itertools
 import math
 
@@ -15,7 +16,9 @@ class Utility:
         vertices = []
 
         for i in range(Kn):
-            vertices.append(Vertex(round(rand.uniform(0,1),3),round(rand.uniform(0,1),3))) # X,Y
+            vertices.append(Vertex(
+                round(rand.uniform(0,1),Properties.decimal_points),
+                round(rand.uniform(0,1),Properties.decimal_points))) # X,Y
 
         return vertices
 
