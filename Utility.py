@@ -43,13 +43,14 @@ class Utility:
             newX.mutate(False)
             #self.draw_graph(newX) #TODO: animate graph lifecycle
 
-            P = min(1.0,math.exp(-(self.f(newX) - self.f(x))/T))
-            if rand.uniform(0,1) < P: # TODO: edit rand number
+            #P = min(1.0,math.exp(-(self.f(newX) - self.f(x))/T))
+            P = min(1.0, math.exp((self.energy(x) - self.energy(newX)) / T))
+            if rand.uniform(0,1) < P:
                 x = newX
             k += 1
         return x
 
-    def f(self,x):
+    def energy(self, x):
         # fitness (penalization) function for a given graph = crossing number of x (graph)
 
         crossing_number = x.get_crossing_number()
@@ -108,4 +109,3 @@ class Utility:
         pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=fixed_nodes)
         nx.draw_networkx(initialGraph, pos)
         plt.show()
-        plt.
