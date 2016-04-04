@@ -1,10 +1,10 @@
 class Properties:
     'Class containing all properties of program'
-    Tmax = 10000 # maximum temperature
+    Tmax = 10000.0 # maximum temperature
     Tmin = 1 # minimum temperature
     alpha = 0.998 # cooling rate
     Kn_max = 10 # max vertices in graph
-    Kn_min = 5 # min vertices in graph
+    Kn_min = 7 # min vertices in graph
     Min_CrossingNumber = {5:1,6:3,7:9,8:19,9:36,10:62} # optimal solution for n vertices graph : crossing number
     sigma = 1 # gaussian sigma
     decimal_points = 5 # float decimal points rounding used in program
