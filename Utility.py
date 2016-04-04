@@ -111,7 +111,8 @@ class Utility:
         nx.draw_networkx(initialGraph, pos)
         plt.show()
 
-    def print_to_graph(self,x_axis,y_T,y_intersections,name):
+    def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,name):
+
         # Create a trace
         trace1 = go.Scatter(
             x=x_axis,
@@ -126,12 +127,43 @@ class Utility:
             name='Fitness'
         )
 
-        data = [trace2]
+        data = [trace2] # TODO: enable trace1
 
         layout = go.Layout(
-            title='A Simple Plot',
+            title=str.split(name,'-')[2] + ' vertices',
             xaxis=dict(
-                title='Generations'
+                title='Generations',
+                titlefont=dict(
+                    family='Arial, sans-serif',
+                    size=18,
+                    color='lightgrey'
+                ),
+                showticklabels=True,
+                tickfont=dict(
+                    family='Old Standard TT, serif',
+                    size=14,
+                    color='black'
+                ),
+                exponentformat='e',
+                showexponent='All',
+                range=x_range,
+            ),
+            yaxis=dict(
+                title='',
+                titlefont=dict(
+                    family='Arial, sans-serif',
+                    size=18,
+                    color='lightgrey'
+                ),
+                showticklabels=True,
+                tickfont=dict(
+                    family='Old Standard TT, serif',
+                    size=14,
+                    color='black'
+                ),
+                exponentformat='e',
+                showexponent='All',
+                range=y_range
             )
         )
         fig = go.Figure(data=data, layout=layout)

@@ -4,7 +4,6 @@ from Properties import Properties
 from Utility import Utility
 from Graph import Graph
 
-
 def print_info(str, *args):
     print "[INFO]", str, [arg for arg in args]
 
@@ -21,7 +20,7 @@ def main():
             print "[START] experiment", experiment, "for N",N
 
             # simulated annealing initialization
-            total_iterations = 0
+            total_iterations = 1
             T = Properties.Tmax
             vertices = utils.generate_initial_vertices(N)
             edges = utils.generate_edges(N)
@@ -39,7 +38,7 @@ def main():
             while T > Properties.Tmin:
                 # TODO: all graphs
                 y_T.append(T)
-                y_intersections.append(g.crossingNumber)
+                y_intersections.append(g.get_crossing_number())
 
                 if g.get_crossing_number() == Properties.Min_CrossingNumber[N]:
                     break
@@ -49,19 +48,19 @@ def main():
                 g = utils.metropolis_algorithm(g, Properties.Kmax, T)
                 T = Properties.alpha * T  # cooldown system - slowly cooling down the system
 
-                if __debug__:
+                if Properties.debug:
                     print "[INFO] temp", T, "iter", total_iterations, "cross", g.get_crossing_number()
 
             print "> final crossing number", g.get_crossing_number()
             print "[END] total iterations", total_iterations
 
             # initialise graph to visualize program run
-            stop = total_iterations * Properties.Kmax
-            x_axis = np.linspace(0, stop * Properties.Kmax, total_iterations)
+            x_axis = np.linspace(0, total_iterations+1, total_iterations/Properties.Kmax+1)
             utils.print_to_graph(x_axis,y_T,y_intersections,
-                                 'exp-'+experiment+'_N-'+N)
+                                 [min(x_axis),max(x_axis)],[1,max(y_intersections)],
+                                 'results/exp-'+str(experiment)+'_N-'+str(N))
 
-            if __debug__:
+            if Properties.debug:
                 utils.draw_graph(g)
 
 
