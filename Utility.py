@@ -15,14 +15,21 @@ class Utility:
         vertices = []
 
         for i in range(Kn):
-            vertices.append(Vertex(rand.uniform(0,1),rand.uniform(0,1))) # X,Y
+            vertices.append(Vertex(round(rand.uniform(0,1),3),round(rand.uniform(0,1),3))) # X,Y
 
         return vertices
 
     def generateEdges(self,n):
-        # returns edges as a combination
+        # returns edges as a dictionary of combinations
+
+        # combs = {}
         if n > 1:
             edges=itertools.combinations(range(n),2)
+
+        # i=0
+        # for n,p in edges:
+        #     combs[i]=(n,p)
+        #     i+=1
 
         return edges
 
@@ -36,14 +43,16 @@ class Utility:
             newX.mutate()
 
             P = math.exp(-(self.f(newX) - self.f(x))/T)
-            if random < P:
+            if rand.uniform(0,1) < P: # TODO: edit rand number
                 x = newX
             k += 1
         return x
 
     def f(self,x):
-        # fitness function = crossing number of x (graph)
+        # fitness function for a given graph = crossing number of x (graph)
 
+        # iterate over all edges combinations
+        return x.get_crossing_number()
 
     def on_segment(self,p,q,r):
         # for given colinear points p, q, r, the function evaluates if point
@@ -72,7 +81,7 @@ class Utility:
         o4 = self.get_orientation(p2,q2,q1)
 
         # general case - intersects in some point on line
-        if o1 != o2 and o3 != o4:
+        if o1 != o2 and o3 != o4: # TODO: vychadzanie z rovnakeho bodu
             return True
 
         # special cases

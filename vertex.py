@@ -13,3 +13,4 @@ class Vertex:
     def getCountHRF(self):
         return "> Total number of vertices: " % Vertex.verticesCount
 
+

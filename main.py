@@ -7,6 +7,7 @@ import itertools
 from Properties import Properties
 from Utility import Utility
 from Graph import Graph
+from Vertex import Vertex
 
 
 def printInfo(str, *args):
@@ -30,10 +31,10 @@ if __name__ == "__main__":
     T = Properties.Tmax
     printInfo('Tmax',T)
 
-    #initialGraph = nx.complete_graph(Properties.Kn_min)
-    #rintInfo("Initializing graph: [E,V] = ",initialGraph.number_of_nodes(),initialGraph.number_of_edges())
-
-    # 2. step: generate initial random graph
+    # initialGraph = nx.complete_graph(Properties.Kn_min)
+    # printInfo("Initializing graph: [E,V] = ",initialGraph.number_of_nodes(),initialGraph.number_of_edges())
+    #
+    # #2. step: generate initial random graph
     # fixed_pos = {} # dict w/ positions set
     # for i in range(Properties.Kn_min):
     #     fixed_pos[i] = (rand.uniform(0,1),rand.uniform(0,1)) # random position in (0,1) X and Y
@@ -50,21 +51,45 @@ if __name__ == "__main__":
     # pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=initialGraph.nodes())
     #
     # nx.draw_networkx(initialGraph, initialGraph.node)
-    # #plt.show()
+    # plt.show()
 
-
-
-
-
-    #
 
     # 2. step: generate initial random graph
     vertices = utils.generateInitialVertices(Properties.Kn_min)
+    # vertices = []
+    # vertices.append(Vertex(0.1,0.1))
+    # vertices.append(Vertex(0.15,0.45))
+    # vertices.append(Vertex(0.35, 0.55))
+    # vertices.append(Vertex(0.35, 0.25))
+    # vertices.append(Vertex(0.45, 0.4))
+
     edges = utils.generateEdges(Properties.Kn_min)
+    #edgesCombs = itertools.combinations(range(Properties.Kn_min),2)
     g = Graph(vertices,edges) # g is initial randomly generated graph
 
     g.printHRF(True,False)
+    print g.crossingNumber, g.get_crossing_number()
 
+
+    # graph drawing
+    initialGraph = nx.complete_graph(Properties.Kn_min)
+
+    fixed_pos = {}
+    vertices = g.get_vertices()
+    for i in range(len(vertices)):
+        fixed_pos[i] = (vertices[i].x,vertices[i].y)
+    #
+    # initialGraph.add_nodes_from(fixed_pos.keys())
+    #
+    # # # add X,Y coordinates to nodes
+    # for n,p in fixed_pos.iteritems():
+    #     initialGraph.node[n]['pos'] = p
+    # print initialGraph.node
+    fixed_nodes = fixed_pos.keys()
+    pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=fixed_nodes)
+
+    nx.draw_networkx(initialGraph, pos)
+    plt.show()
 
     # 3. step: loop until stop condition is met
     # stop condition:
@@ -73,7 +98,7 @@ if __name__ == "__main__":
     neighbor = copy.copy(g) # new and (will be) mutated graph
     neighbor.mutate()
     # DEBUG:
-    neighbor.printHRF(True,False)
+    #neighbor.printHRF(True,False)
 
 
 
