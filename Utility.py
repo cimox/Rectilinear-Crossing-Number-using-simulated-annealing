@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 
 class Utility:
     'Class w/ utility functions'
+    plt.show()
 
     def __init__(self):
         self = self
@@ -40,6 +41,7 @@ class Utility:
         while k < Kmax:
             newX=x.clone()
             newX.mutate(False)
+            #self.draw_graph(newX) #TODO: animate graph lifecycle
 
             P = min(1.0,math.exp(-(self.f(newX) - self.f(x))/T))
             if rand.uniform(0,1) < P: # TODO: edit rand number
@@ -106,3 +108,4 @@ class Utility:
         pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=fixed_nodes)
         nx.draw_networkx(initialGraph, pos)
         plt.show()
+        plt.
