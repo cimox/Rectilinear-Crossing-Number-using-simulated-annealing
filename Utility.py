@@ -4,6 +4,8 @@ from Vertex import Vertex
 from Properties import Properties
 import itertools
 import math
+import networkx as nx
+import matplotlib.pyplot as plt
 
 class Utility:
     'Class w/ utility functions'
@@ -30,26 +32,30 @@ class Utility:
 
         return edges
 
-    def metropolis_algorithm(self,init,Kmax,T):
+    def metropolis_algorithm(self,Xinit,Kmax,T):
         # implementation of metropolis algorithm
 
-        x = copy.copy(init)
+        x = Xinit.clone()
         k=0
         while k < Kmax:
-            newX=copy.copy(x)
-            newX.mutate()
+            newX=x.clone()
+            newX.mutate(False)
 
-            P = math.exp(-(self.f(newX) - self.f(x))/T)
+            fx_newx = self.f(newX)
+            fx_x = self.f(x)
+            P = math.exp(-(fx_newx - fx_x)/T)
             if rand.uniform(0,1) < P: # TODO: edit rand number
                 x = newX
             k += 1
         return x
 
     def f(self,x):
-        # fitness function for a given graph = crossing number of x (graph)
+        # fitness (penalization) function for a given graph = crossing number of x (graph)
 
-        # iterate over all edges combinations
-        return x.get_crossing_number()
+        crossing_number = x.get_crossing_number()
+        crossing_number = crossing_number ^ 2
+
+        return crossing_number + Properties.f_const
 
     def on_segment(self,p,q,r):
         # for given colinear points p, q, r, the function evaluates if point
@@ -90,3 +96,16 @@ class Utility:
             return True
         if o3 == 0 and self.on_segment(p2,q1,q2):
             return True
+
+    def draw_graph(self,g):
+        # draws graph based on graph g from parameter
+
+        initialGraph = nx.complete_graph(Properties.Kn_min)
+        fixed_pos = {}
+        vertices = g.get_vertices()
+        for i in range(len(vertices)):
+            fixed_pos[i] = (vertices[i].x, vertices[i].y)
+        fixed_nodes = fixed_pos.keys()
+        pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=fixed_nodes)
+        nx.draw_networkx(initialGraph, pos)
+        plt.show()
