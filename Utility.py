@@ -1,12 +1,14 @@
 import plotly.plotly as py
 import plotly.graph_objs as go
 import random as rand
-from Vertex import Vertex
-from Properties import Properties
 import itertools
 import math
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
+
+from Vertex import Vertex
+from Properties import Properties
 
 class Utility:
     'Class w/ utility functions'
@@ -34,7 +36,7 @@ class Utility:
 
         return edges
 
-    def metropolis_algorithm(self,Xinit,Kmax,T):
+    def metropolis_algorithm(self,Xinit,Kmax,T,penalization=None):
         # implementation of metropolis algorithm
 
         x = Xinit.clone()
@@ -45,16 +47,29 @@ class Utility:
             #self.draw_graph(newX) #TODO: animate graph lifecycle
 
             #P = min(1.0,math.exp(-(self.f(newX) - self.f(x))/T))
-            P = min(1.0, math.exp((self.energy(x) - self.energy(newX)) / T))
+            if penalization == True:
+                P = min(1.0, math.exp((self.energy(x,True) - self.energy(newX,True)) / T))
+            else:
+                P = min(1.0, math.exp((self.energy(x) - self.energy(newX)) / T))
             if rand.uniform(0,1) < P:
                 x = newX
             k += 1
         return x
 
-    def energy(self, x):
+    def penalization(self,x):
+        # returns penalization for graph x if coord not in (0,1)
+        penalization = 0
+        for v in x.get_vertices():
+            if (v.x > 1 and v.y > 1) or (v.x < 0 and v.y < 0):
+                penalization += 1
+        return penalization
+
+    def energy(self, x, penalization=None):
         # fitness (penalization) function for a given graph = crossing number of x (graph)
 
         crossing_number = x.get_crossing_number()
+        if penalization == True:
+            crossing_number += penalization(x)
 
         return crossing_number + Properties.f_const
 
@@ -98,10 +113,12 @@ class Utility:
         if o3 == 0 and self.on_segment(p2,q1,q2):
             return True
 
-    def draw_graph(self,g):
+    def draw_graph(self,g,Kn):
         # draws graph based on graph g from parameter
+        # g - graph
+        # Kn - graph degree
 
-        initialGraph = nx.complete_graph(Properties.Kn_min)
+        initialGraph = nx.complete_graph(Kn)
         fixed_pos = {}
         vertices = g.get_vertices()
         for i in range(len(vertices)):
@@ -111,32 +128,35 @@ class Utility:
         nx.draw_networkx(initialGraph, pos)
         plt.show()
 
-    def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,name):
+    def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,name,url=None):
 
         # Create a trace
-        trace1 = go.Scatter(
+        max_intersect = max(y_intersections)
+        temperature = go.Scatter(
             x=x_axis,
-            y=[float(i) / max(y_intersections) for i in y_T],
+            y=[float(i) / max(y_T) for i in y_T],
             # y=y_T,
-            name='Temperature'
+            name='T - normalized'
         )
-        trace2 = go.Scatter(
+        intersections = go.Scatter(
             x=x_axis,
-            # y=[float(i)/max(y_intersections) for i in y_intersections],
-            y=y_intersections,
-            name='Fitness'
+            y=[float(i)/max(y_intersections) for i in y_intersections], # normalized
+            # y=y_intersections,
+            name='F - normalized'
         )
 
-        data = [trace2] # TODO: enable trace1
+        data = [temperature, intersections] # TODO: enable temp
 
         layout = go.Layout(
-            title=str.split(name,'-')[2] + ' vertices',
+            title=str.split(name,'-')[2] + ' Vertices'+
+                  ', std: ' + str(np.std(y_intersections)) +
+                  ', avg: ' + str(np.average(y_intersections)),
             xaxis=dict(
                 title='Generations',
                 titlefont=dict(
                     family='Arial, sans-serif',
                     size=18,
-                    color='lightgrey'
+                    color='darkgrey'
                 ),
                 showticklabels=True,
                 tickfont=dict(
@@ -162,9 +182,11 @@ class Utility:
                     color='black'
                 ),
                 exponentformat='e',
-                showexponent='All',
-                range=y_range
+                showexponent='All'
+                #,range=y_range
             )
         )
         fig = go.Figure(data=data, layout=layout)
         py.image.save_as(fig, filename=name+'.png')
+        if url == True:
+            plot_url = py.plot(fig, filename=name)
