@@ -65,7 +65,7 @@ class Graph:
         diff_y = rand.gauss(0,1)
         self.vertices[randPos].y += diff_y
 
-    def printHRF(self,vertices,edges):
+    def print_HRF(self, vertices, edges):
         # prints graph attributes in human readable format
 
         if vertices:

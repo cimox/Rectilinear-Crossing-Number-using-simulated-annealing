@@ -10,7 +10,7 @@ class Utility:
     def __init__(self):
         self = self
 
-    def generateInitialVertices(self,Kn):
+    def generate_initial_vertices(self, Kn):
         # generate random vertices at position X,Y
         vertices = []
 
@@ -19,17 +19,11 @@ class Utility:
 
         return vertices
 
-    def generateEdges(self,n):
-        # returns edges as a dictionary of combinations
+    def generate_edges(self, n):
+        # returns edges as a dictionary generator of combinations
 
-        # combs = {}
         if n > 1:
             edges=itertools.combinations(range(n),2)
-
-        # i=0
-        # for n,p in edges:
-        #     combs[i]=(n,p)
-        #     i+=1
 
         return edges
 
