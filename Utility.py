@@ -1,9 +1,8 @@
 import copy
-from Properties import Properties
 import random as rand
 from Vertex import Vertex
 import itertools
-import networkx as nx
+import math
 
 class Utility:
     'Class w/ utility functions'
@@ -26,3 +25,23 @@ class Utility:
             edges=itertools.combinations(range(n),2)
 
         return edges
+
+    def metropolis_algorithm(self,init,Kmax,T):
+        # implementation of metropolis algorithm
+
+        x = copy.copy(init)
+        k=0
+        while k < Kmax:
+            newX=copy.copy(x)
+            newX.mutate()
+
+            P = math.exp(-(self.f(newX) - self.f(x))/T)
+            if random < P:
+                x = newX
+            k += 1
+        return x
+
+    def f(self,x):
+        # fitness function = crossing number of x (graph)
+
+        
