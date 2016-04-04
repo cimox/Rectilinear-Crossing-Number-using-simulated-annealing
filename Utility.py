@@ -41,10 +41,9 @@ class Utility:
             newX=x.clone()
             newX.mutate(False)
 
-            fx_newx = self.f(newX)
-            fx_x = self.f(x)
-            P = math.exp(-(fx_newx - fx_x)/T)
-            if rand.uniform(0,1) < P: # TODO: edit rand number
+            P = min(1.0,math.exp((self.f(newX) - self.f(x))/T)) # acceptance function
+            ran = abs(rand.gauss(1,1))
+            if P > ran: # TODO: edit rand number
                 x = newX
             k += 1
         return x
@@ -53,7 +52,11 @@ class Utility:
         # fitness (penalization) function for a given graph = crossing number of x (graph)
 
         crossing_number = x.get_crossing_number()
-        crossing_number = crossing_number ^ 2
+        # crossing_number = math.pow(crossing_number, 2)
+
+        for v in x.get_vertices():
+            if v.x > 1 or v.x < 0 or v.y > 1 or v.y < 0:
+                crossing_number -= 1
 
         return crossing_number + Properties.f_const
 

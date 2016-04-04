@@ -1,5 +1,7 @@
-import random as rand
-import copy
+import sys
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import math
 
 from Properties import Properties
 from Utility import Utility
@@ -44,6 +46,16 @@ if __name__ == "__main__":
     # vertices.append(Vertex(4.108, -2.862))
     print
 
+    # initialise graph
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1,1,1)
+    ln1, = ax1.plot([],[], 'r-')
+
+    def animate(i):
+        xar=[]
+        yar=[]
+
+
 
     # simulated annealing
     total_iterations = 0
@@ -63,15 +75,18 @@ if __name__ == "__main__":
     #   - temperature is cooled
     #   - good-enough solution has been found
     while T > Properties.Tmin:
+        if g.get_crossing_number() == Properties.Min_CrossingNumber[Properties.Kn_min]:
+            break
         #TODO: all graphs
         total_iterations += Properties.Kmax
         g = utils.metropolis_algorithm(g,Properties.Kmax,T)
         T = Properties.alpha * T # cooldown system - slowly cooling down the system
+
         print "[INFO] temp", T, "iter", total_iterations, "cross", g.get_crossing_number()
-        if g.get_crossing_number() == Properties.Min_CrossingNumber[Properties.Kn_min]:
-            break
+        #sys.stdout.write('.')
 
 
+    print
     g.print_HRF(True, True)
     print "> crossing number", g.get_crossing_number()
     print "[INFO] total iterations", total_iterations

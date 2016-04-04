@@ -76,10 +76,13 @@ class Graph:
             print "> position:", self.vertices[randPos].x, self.vertices[randPos].y
 
         diff_x = round(rand.gauss(0,Properties.sigma),Properties.decimal_points)
-        self.vertices[randPos].x = round(1-diff_x * self.vertices[randPos].x, Properties.decimal_points)
+        diff_y = round(rand.gauss(0,Properties.sigma), Properties.decimal_points)
 
-        diff_y = round(rand.gauss(0,Properties.sigma),Properties.decimal_points)
-        self.vertices[randPos].y = round(1 - diff_y * self.vertices[randPos].y, Properties.decimal_points)
+        # self.vertices[randPos].x += diff_x
+        # self.vertices[randPos].y += diff_x
+
+        self.vertices[randPos].x = round(1-diff_x * self.vertices[randPos].x, Properties.decimal_points)
+        self.vertices[randPos].y = round(1-diff_y * self.vertices[randPos].y, Properties.decimal_points)
 
     def print_HRF(self, vertices, edges):
         # prints graph attributes in human readable format
