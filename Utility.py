@@ -1,14 +1,19 @@
-import copy
+import plotly
+import plotly.graph_objs as go
+
 import random as rand
-from Vertex import Vertex
-from Properties import Properties
 import itertools
 import math
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
+
+from Vertex import Vertex
+from Properties import Properties
 
 class Utility:
     'Class w/ utility functions'
+    # plt.show()
 
     def __init__(self):
         self = self
@@ -32,7 +37,7 @@ class Utility:
 
         return edges
 
-    def metropolis_algorithm(self,Xinit,Kmax,T):
+    def metropolis_algorithm(self,Xinit,Kmax,T,penalization=False):
         # implementation of metropolis algorithm
 
         x = Xinit.clone()
@@ -40,23 +45,32 @@ class Utility:
         while k < Kmax:
             newX=x.clone()
             newX.mutate(False)
+            #self.draw_graph(newX) #TODO: animate graph lifecycle
 
-            P = min(1.0,math.exp((self.f(newX) - self.f(x))/T)) # acceptance function
-            ran = abs(rand.gauss(1,1))
-            if P > ran: # TODO: edit rand number
+            #P = min(1.0,math.exp(-(self.f(newX) - self.f(x))/T))
+            if penalization == True:
+                P = min(1.0, math.exp((self.energy(x,True) - self.energy(newX,True)) / T))
+            else:
+                P = min(1.0, math.exp((self.energy(x) - self.energy(newX)) / T))
+            if rand.uniform(0,1) < P:
                 x = newX
             k += 1
         return x
 
-    def f(self,x):
+    def penalization(self,x):
+        # returns penalization for graph x if coord not in (0,1)
+        penalization = 0
+        for v in x.get_vertices():
+            if (v.x > 1 and v.y > 1) or (v.x < 0 and v.y < 0):
+                penalization += 1
+        return penalization
+
+    def energy(self, x, penalization=False):
         # fitness (penalization) function for a given graph = crossing number of x (graph)
 
         crossing_number = x.get_crossing_number()
-        # crossing_number = math.pow(crossing_number, 2)
-
-        for v in x.get_vertices():
-            if v.x > 1 or v.x < 0 or v.y > 1 or v.y < 0:
-                crossing_number -= 1
+        if penalization == True:
+            crossing_number += self.penalization(x)
 
         return crossing_number + Properties.f_const
 
@@ -100,10 +114,12 @@ class Utility:
         if o3 == 0 and self.on_segment(p2,q1,q2):
             return True
 
-    def draw_graph(self,g):
+    def draw_graph(self,g,Kn):
         # draws graph based on graph g from parameter
+        # g - graph
+        # Kn - graph degree
 
-        initialGraph = nx.complete_graph(Properties.Kn_min)
+        initialGraph = nx.complete_graph(Kn)
         fixed_pos = {}
         vertices = g.get_vertices()
         for i in range(len(vertices)):
@@ -112,3 +128,93 @@ class Utility:
         pos = nx.spring_layout(initialGraph, pos=fixed_pos, fixed=fixed_nodes)
         nx.draw_networkx(initialGraph, pos)
         plt.show()
+
+    def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,
+                       name,xlab='Generations',ylab='Normalized to (0,1)',
+                       ln1_title='Temperature',ln2_title='Fitness',title=None,
+                       url=None,normalization=True):
+        # prints graph with x-y data to file
+        # x_axis - data on x axis
+        # y_T - first Y data
+        # y_intersections - intersections data or somethings else
+        # x_range - x axis range, same w/ y_range
+        # name - title of graph
+        # xlab,ylab - x/y axis text label
+        # ln1/2_label - line 1 and 2 label
+        # title - title of graph
+        # url - sends to plot.ly
+
+
+        # Create a trace
+
+        # normalized
+        if normalization:
+            max_intersect = max(y_intersections)
+            temperature = go.Scatter(
+                x=x_axis,
+                y=[float(i) / max(y_T) for i in y_T],
+                name=ln1_title
+            )
+            intersections = go.Scatter(
+                x=x_axis,
+                y=[float(i)/max(y_intersections) for i in y_intersections], # normalized
+                name=ln2_title
+            )
+        else:
+            max_intersect = max(y_intersections)
+            temperature = go.Scatter(
+                x=x_axis, y=y_T, name=ln1_title
+            )
+            intersections = go.Scatter(
+                x=x_axis, y=y_intersections, name=ln2_title
+            )
+
+        data = [temperature, intersections]
+
+        std = str(np.std(y_intersections))
+        avg = str(np.average(y_intersections))
+        if title == None:
+            title = str.split(name, '-')[2] + ' Vertices' + ', std: ' + std + ', avg: ' + avg,
+        layout = go.Layout(
+            title=title,
+            xaxis=dict(
+                title=xlab,
+                titlefont=dict(
+                    family='Arial, sans-serif',
+                    size=18,
+                    color='darkgrey'
+                ),
+                showticklabels=True,
+                tickfont=dict(
+                    family='Old Standard TT, serif',
+                    size=14,
+                    color='black'
+                ),
+                exponentformat='e',
+                showexponent='All',
+                range=x_range,
+            ),
+            yaxis=dict(
+                title=ylab,
+                titlefont=dict(
+                    family='Arial, sans-serif',
+                    size=18,
+                    color='darkgrey'
+                ),
+                showticklabels=True,
+                tickfont=dict(
+                    family='Old Standard TT, serif',
+                    size=14,
+                    color='black'
+                ),
+                exponentformat='e',
+                showexponent='All'
+                #,range=y_range
+            )
+        )
+        fig = go.Figure(data=data, layout=layout)
+        plotly.offline.plot(fig,filename=name)
+        # if url == True:
+        #     plot_url = plotly.plot(fig, filename=name)
+
+        return [avg,std]
