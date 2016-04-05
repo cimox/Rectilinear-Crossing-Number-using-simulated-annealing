@@ -39,6 +39,7 @@ class Utility:
 
     def metropolis_algorithm(self,Xinit,Kmax,T,penalization=False):
         # implementation of metropolis algorithm
+        accepted_costs = []
 
         x = Xinit.clone()
         k=0
@@ -54,8 +55,9 @@ class Utility:
                 P = min(1.0, math.exp((self.energy(x) - self.energy(newX)) / T))
             if rand.uniform(0,1) < P:
                 x = newX
+                accepted_costs.append(x.get_crossing_number())
             k += 1
-        return x
+        return [x,accepted_costs]
 
     def penalization(self,x):
         # returns penalization for graph x if coord not in (0,1)
@@ -129,10 +131,10 @@ class Utility:
         nx.draw_networkx(initialGraph, pos)
         plt.show()
 
-    def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,
-                       name,xlab='Generations',ylab='Normalized to (0,1)',
-                       ln1_title='Temperature',ln2_title='Fitness',title=None,
-                       url=None,normalization=True):
+    def print_to_graph(self, x_axis, y_T, y_1, y_2, y_3, x_range, y_range,
+                       name, xlab='Generations', ylab='Normalized to (0,1)',
+                       ln1_title='Temperature', ln2_title='Standard deviation', title=None,
+                       url=None, normalization=True):
         # prints graph with x-y data to file
         # x_axis - data on x axis
         # y_T - first Y data
@@ -149,32 +151,45 @@ class Utility:
 
         # normalized
         if normalization:
-            max_intersect = max(y_intersections)
-            temperature = go.Scatter(
-                x=x_axis,
-                y=[float(i) / max(y_T) for i in y_T],
+            norm = max(y_T,y_1,y_2,y_3)
+            y_T = go.Scatter(
+                x=x_axis, y=[float(i) / max(norm) for i in y_T], # normalized
                 name=ln1_title
             )
-            intersections = go.Scatter(
-                x=x_axis,
-                y=[float(i)/max(y_intersections) for i in y_intersections], # normalized
+            y_1 = go.Scatter(
+                x=x_axis, y=[float(i) / max(norm) for i in y_1], # normalized
                 name=ln2_title
             )
+            y_2 = go.Scatter(
+                x=x_axis, y=[float(i) / max(norm) for i in y_2],  # normalized
+                name='Average'
+            )
+            y_3 = go.Scatter(
+                x=x_axis, y=[float(i) / max(norm) for i in y_3],  # normalized
+                name='Fitness'
+            )
+
         else:
-            max_intersect = max(y_intersections)
-            temperature = go.Scatter(
+            max_intersect = max(y_1)
+            y_T = go.Scatter(
                 x=x_axis, y=y_T, name=ln1_title
             )
-            intersections = go.Scatter(
-                x=x_axis, y=y_intersections, name=ln2_title
+            y_1 = go.Scatter(
+                x=x_axis, y=y_1, name=ln2_title
+            )
+            y_2 = go.Scatter(
+                x=x_axis, y=y_2, name='Average'
+            )
+            y_3 = go.Scatter(
+                x=x_axis, y=y_3, name='Fitness'
             )
 
-        data = [temperature, intersections]
+        data = [y_T, y_1, y_2, y_3]
 
-        std = str(np.std(y_intersections))
-        avg = str(np.average(y_intersections))
         if title == None:
-            title = str.split(name, '-')[2] + ' Vertices' + ', std: ' + std + ', avg: ' + avg,
+            title = str.split(name, '-')[2] + ' Vertices'
+            if normalization:
+                title = title + ' Normalized'
         layout = go.Layout(
             title=title,
             xaxis=dict(
@@ -213,8 +228,8 @@ class Utility:
             )
         )
         fig = go.Figure(data=data, layout=layout)
+        if normalization:
+            name = name + '-normalized'
         plotly.offline.plot(fig,filename=name)
         # if url == True:
         #     plot_url = plotly.plot(fig, filename=name)
-
-        return [avg,std]
