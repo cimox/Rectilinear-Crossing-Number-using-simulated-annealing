@@ -72,8 +72,8 @@ def main():
         utils.print_to_graph(x_axis, stds, avgs,
                              [min(x_axis),max(x_axis)],[1,max(max(avgs),max(stds))],
                              'results/'+str(Kn)+'/N-'+str(Kn)+'_std-avg',
-                             ylab='',ln1_title='Standard deviation',ln2_title='Average',
-                             title='Standard deviation and average fitness',normalize=False
+                             xlab='Experiment',ylab='',ln1_title='Standard deviation',ln2_title='Average',
+                             title='Standard deviation and average fitness',normalization=False
                              )
 
 

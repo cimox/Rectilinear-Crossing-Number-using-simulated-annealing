@@ -37,7 +37,7 @@ class Utility:
 
         return edges
 
-    def metropolis_algorithm(self,Xinit,Kmax,T,penalization=None):
+    def metropolis_algorithm(self,Xinit,Kmax,T,penalization=False):
         # implementation of metropolis algorithm
 
         x = Xinit.clone()
@@ -65,7 +65,7 @@ class Utility:
                 penalization += 1
         return penalization
 
-    def energy(self, x, penalization=None):
+    def energy(self, x, penalization=False):
         # fitness (penalization) function for a given graph = crossing number of x (graph)
 
         crossing_number = x.get_crossing_number()
@@ -132,7 +132,7 @@ class Utility:
     def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,
                        name,xlab='Generations',ylab='Normalized to (0,1)',
                        ln1_title='Temperature',ln2_title='Fitness',title=None,
-                       url=None):
+                       url=None,normalization=True):
         # prints graph with x-y data to file
         # x_axis - data on x axis
         # y_T - first Y data
@@ -146,19 +146,28 @@ class Utility:
 
 
         # Create a trace
-        max_intersect = max(y_intersections)
-        temperature = go.Scatter(
-            x=x_axis,
-            y=[float(i) / max(y_T) for i in y_T],
-            # y=y_T,
-            name=ln1_title
-        )
-        intersections = go.Scatter(
-            x=x_axis,
-            y=[float(i)/max(y_intersections) for i in y_intersections], # normalized
-            # y=y_intersections,
-            name=ln2_title
-        )
+
+        # normalized
+        if normalization:
+            max_intersect = max(y_intersections)
+            temperature = go.Scatter(
+                x=x_axis,
+                y=[float(i) / max(y_T) for i in y_T],
+                name=ln1_title
+            )
+            intersections = go.Scatter(
+                x=x_axis,
+                y=[float(i)/max(y_intersections) for i in y_intersections], # normalized
+                name=ln2_title
+            )
+        else:
+            max_intersect = max(y_intersections)
+            temperature = go.Scatter(
+                x=x_axis, y=y_T, name=ln1_title
+            )
+            intersections = go.Scatter(
+                x=x_axis, y=y_intersections, name=ln2_title
+            )
 
         data = [temperature, intersections]
 

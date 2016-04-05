@@ -14,7 +14,7 @@ class Properties:
     draw_graph = False
     Kmax = 2 # K-max iterations in metropolis alg.
     f_const = 0.048 # penalization constant
-    experiment_limit = 5
+    experiment_limit = 25
 
     def __init__(self):
         #do nothing
