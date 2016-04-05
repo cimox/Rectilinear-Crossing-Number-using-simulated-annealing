@@ -1,0 +1,3 @@
+graph-degree,penalization,stddev,average
+4,False,8.41049344569,6.94
+4,True,5.49909083395,6.4

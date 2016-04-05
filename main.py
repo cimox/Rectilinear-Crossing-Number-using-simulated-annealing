@@ -10,17 +10,20 @@ def normalize(x,min,max):
 
 def main():
     utils = Utility()
-
+    # std deviations and averages of experiments for each graph
+    # format: graph-degree,penalization [T/F],list(std deviation),list(average)
+    fi = f = open('stds-avgs_ITER_8-9.txt', 'w')
+    fi.write('graph-degree,penalization,stddev,average\n')
 
     # run experimens
     for Kn in range(Properties.Kn_min,Properties.Kn_max):
-        avgs = []
-        stds = []
-        avgs_penalized = []
-        stds_penalized = []
+        print "[INFO] running", Kn, "graph"
         for i in range(2): # 0 - withou penalization, 1 - with penalization
+            print "> penalization", i
+            iters = []
             for experiment in range(Properties.experiment_limit):
-                print "[START] experiment", experiment, "for N",Kn
+                print ">> experiment", experiment
+                # print "[START] experiment", experiment, "for N",Kn
 
                 # simulated annealing initialization
                 total_iterations = 1
@@ -28,9 +31,10 @@ def main():
                 vertices = utils.generate_initial_vertices(Kn)
                 edges = utils.generate_edges(Kn)
                 g = Graph(vertices, edges)  # g is initial randomly generated graph
-                print "> init crossing number", g.crossingNumber
+                # print "> init crossing number", g.crossingNumber
 
-                # utils.draw_graph(g)
+                # utils.draw_graph(g,Kn)
+                # print "> finding solution..."
 
                 # 3. step: loop until stop condition is met
                 # stop condition:
@@ -57,62 +61,26 @@ def main():
                     if Properties.debug:
                         print "[INFO] temp", T, "iter", total_iterations, "cross", g.get_crossing_number()
 
-                print "> final crossing number", g.get_crossing_number()
-                print "[END] \n> total iterations", total_iterations, "\n----------------------------\n"
-                print "> temp", T, "iter", total_iterations, "cross", g.get_crossing_number()
+                # print "> final crossing number", g.get_crossing_number()
+                # print "[END] \n> total iterations", total_iterations
+                # print "> temp", T, "iter", total_iterations, "cross", g.get_crossing_number()
+                # print "----------------------------"
 
                 # initialise graph to visualize program run
-                if experiment == Properties.experiment_limit-1 or experiment == 0:
-                    # visualize track of first and last experiment
-                    x_axis = np.linspace(0, total_iterations+1, total_iterations/Properties.Kmax+1)
-                    tmp = utils.print_to_graph(x_axis,y_T,y_intersections,
-                                        [min(x_axis),max(x_axis)],[1,max(y_intersections)],
-                                        'results/'+str(Kn)+'/exp-'+str(experiment)+'_N-'+str(Kn)+'_'+str(i))
-
-                if i == 0: # not penalized
-                    stds.append(np.std(y_intersections))
-                    avgs.append(np.average(y_intersections))
-                else: # penalized
-                    stds_penalized.append(np.std(y_intersections))
-                    avgs_penalized.append(np.average(y_intersections))
-
-                if Properties.debug or Kn >= 10:
-                    utils.draw_graph(g,Kn)
-
-
-        x_axis = np.linspace(0, len(stds), len(stds))
-        # std - std penalized
-        utils.print_to_graph(x_axis, stds, stds_penalized,
-                             [min(x_axis),max(x_axis)],[1,max(max(avgs),max(stds))],
-                             'results/'+str(Kn)+'/N-'+str(Kn)+'_std-std',
-                             xlab='Experiment',ylab='',ln1_title='Standard deviation',
-                             ln2_title='Std dev w/ penalization',
-                             title='Standard deviation and penalization',normalization=False
-                             )
-        # average - average penalized
-        utils.print_to_graph(x_axis, avgs, avgs_penalized,
-                             [min(x_axis), max(x_axis)], [1, max(max(avgs), max(stds))],
-                             'results/' + str(Kn) + '/N-' + str(Kn) + '_avg-avg',
-                             xlab='Experiment', ylab='', ln1_title='Average fitness',
-                             ln2_title='Average f w/ penalization',
-                             title='Average fitness and penalization', normalization=False
-                             )
-        # not penalized
-        utils.print_to_graph(x_axis, avgs, stds,
-                             [min(x_axis), max(x_axis)], [1, max(max(avgs), max(stds))],
-                             'results/' + str(Kn) + '/N-' + str(Kn) + '_avg-std',
-                             xlab='Experiment', ylab='', ln1_title='Average fitness',
-                             ln2_title='Standard deviation',
-                             title='Average fitness and standard deviation', normalization=False
-                             )
-        # penalized
-        utils.print_to_graph(x_axis, avgs_penalized, stds_penalized,
-                             [min(x_axis), max(x_axis)], [1, max(max(avgs), max(stds))],
-                             'results/' + str(Kn) + '/N-' + str(Kn) + '_avg-std-pen',
-                             xlab='Experiment', ylab='', ln1_title='Average fitness',
-                             ln2_title='Standard deviation',
-                             title='Average fitness and standard deviation\nPENALIZED', normalization=False
-                             )
+                # if experiment == Properties.experiment_limit-1 or experiment == 0:
+                #     # visualize track of first and last experiment
+                #     x_axis = np.linspace(0, total_iterations+1, total_iterations/Properties.Kmax+1)
+                #     tmp = utils.print_to_graph(x_axis,y_T,y_intersections,
+                #                         [min(x_axis),max(x_axis)],[1,max(y_intersections)],
+                #                         'results/'+str(Kn)+'/exp-'+str(experiment)+'_N-'+str(Kn)+'_'+str(i))
+                iters.append(total_iterations)
+            if i == 0:
+                fi.write(str(Kn) + ',' + 'False'
+                         + ',' + str(np.std(iters)) + ',' + str(np.average(iters)) + '\n')
+            else:
+                fi.write(str(Kn) + ',' + 'True'
+                         + ',' + str(np.std(iters)) + ',' + str(np.average(iters)) + '\n')
+    fi.close()
 
 if __name__ == "__main__":
     main()
