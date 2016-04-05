@@ -16,6 +16,8 @@ def main():
 
     # run experimens
     for Kn in range(Properties.Kn_min,Properties.Kn_max):
+        avgs = []
+        stds = []
         for experiment in range(Properties.experiment_limit):
             print "[START] experiment", experiment, "for N",Kn
 
@@ -56,15 +58,23 @@ def main():
 
             # initialise graph to visualize program run
             x_axis = np.linspace(0, total_iterations+1, total_iterations/Properties.Kmax+1)
-            utils.print_to_graph(x_axis,y_T,y_intersections,
+            tmp = utils.print_to_graph(x_axis,y_T,y_intersections,
                                  [min(x_axis),max(x_axis)],[1,max(y_intersections)],
-                                 'results/'+str(Kn)+'/exp-'+str(experiment)+'_N-'+str(Kn),True)
+                                 'results/'+str(Kn)+'/exp-'+str(experiment)+'_N-'+str(Kn))
+
+            stds.append(float(tmp[0]))
+            avgs.append(float(tmp[1]))
 
             if Properties.debug or Kn >= 8:
                 utils.draw_graph(g,Kn)
 
-
-
+        x_axis = np.linspace(0, len(stds), len(stds))
+        utils.print_to_graph(x_axis, stds, avgs,
+                             [min(x_axis),max(x_axis)],[1,max(max(avgs),max(stds))],
+                             'results/'+str(Kn)+'/N-'+str(Kn)+'_std-avg',
+                             ylab='',ln1_title='Standard deviation',ln2_title='Average',
+                             title='Standard deviation and average fitness',normalize=False
+                             )
 
 
 

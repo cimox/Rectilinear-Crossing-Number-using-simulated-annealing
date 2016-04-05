@@ -1,5 +1,6 @@
-import plotly.plotly as py
+import plotly
 import plotly.graph_objs as go
+
 import random as rand
 import itertools
 import math
@@ -12,7 +13,7 @@ from Properties import Properties
 
 class Utility:
     'Class w/ utility functions'
-    plt.show()
+    # plt.show()
 
     def __init__(self):
         self = self
@@ -69,7 +70,7 @@ class Utility:
 
         crossing_number = x.get_crossing_number()
         if penalization == True:
-            crossing_number += penalization(x)
+            crossing_number += self.penalization(x)
 
         return crossing_number + Properties.f_const
 
@@ -128,7 +129,21 @@ class Utility:
         nx.draw_networkx(initialGraph, pos)
         plt.show()
 
-    def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,name,url=None):
+    def print_to_graph(self,x_axis,y_T,y_intersections,x_range,y_range,
+                       name,xlab='Generations',ylab='Normalized to (0,1)',
+                       ln1_title='Temperature',ln2_title='Fitness',title=None,
+                       url=None):
+        # prints graph with x-y data to file
+        # x_axis - data on x axis
+        # y_T - first Y data
+        # y_intersections - intersections data or somethings else
+        # x_range - x axis range, same w/ y_range
+        # name - title of graph
+        # xlab,ylab - x/y axis text label
+        # ln1/2_label - line 1 and 2 label
+        # title - title of graph
+        # url - sends to plot.ly
+
 
         # Create a trace
         max_intersect = max(y_intersections)
@@ -136,23 +151,25 @@ class Utility:
             x=x_axis,
             y=[float(i) / max(y_T) for i in y_T],
             # y=y_T,
-            name='T - normalized'
+            name=ln1_title
         )
         intersections = go.Scatter(
             x=x_axis,
             y=[float(i)/max(y_intersections) for i in y_intersections], # normalized
             # y=y_intersections,
-            name='F - normalized'
+            name=ln2_title
         )
 
-        data = [temperature, intersections] # TODO: enable temp
+        data = [temperature, intersections]
 
+        std = str(np.std(y_intersections))
+        avg = str(np.average(y_intersections))
+        if title == None:
+            title = str.split(name, '-')[2] + ' Vertices' + ', std: ' + std + ', avg: ' + avg,
         layout = go.Layout(
-            title=str.split(name,'-')[2] + ' Vertices'+
-                  ', std: ' + str(np.std(y_intersections)) +
-                  ', avg: ' + str(np.average(y_intersections)),
+            title=title,
             xaxis=dict(
-                title='Generations',
+                title=xlab,
                 titlefont=dict(
                     family='Arial, sans-serif',
                     size=18,
@@ -169,11 +186,11 @@ class Utility:
                 range=x_range,
             ),
             yaxis=dict(
-                title='',
+                title=ylab,
                 titlefont=dict(
                     family='Arial, sans-serif',
                     size=18,
-                    color='lightgrey'
+                    color='darkgrey'
                 ),
                 showticklabels=True,
                 tickfont=dict(
@@ -187,6 +204,8 @@ class Utility:
             )
         )
         fig = go.Figure(data=data, layout=layout)
-        py.image.save_as(fig, filename=name+'.png')
-        if url == True:
-            plot_url = py.plot(fig, filename=name)
+        plotly.offline.plot(fig,filename=name)
+        # if url == True:
+        #     plot_url = plotly.plot(fig, filename=name)
+
+        return [avg,std]
