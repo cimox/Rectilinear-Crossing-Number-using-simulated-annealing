@@ -43,8 +43,18 @@ class Graph:
                     if self.utils.do_intersect(self.vertices[p1],self.vertices[q1],
                                                self.vertices[p2],self.vertices[q2]):
                         cnt += 1 # they do intersect
-
+        self.crossingNumber = cnt/2
         return cnt/2
+
+    # def get_crossing_number(self):
+    #     intersections = 0
+    #
+    #     for i in range(len(self.vertices)):
+    #         for j in range(i+1,len(self.vertices)):
+    #             intersections += self.utils.do_intersect(self.edges[i].A,self.edges[i].B,
+    #                                                      self.edges[j].A, self.edges[j].B)
+    #     self.crossingNumber = intersections
+    #     return intersections
 
     def new_edges(edges,last=None):
         if last is None:

@@ -58,13 +58,16 @@ def main():
                         print "[INFO] temp", T, "iter", total_iterations, "cross", g.get_crossing_number()
 
                 print "> final crossing number", g.get_crossing_number()
-                print "[END] total iterations", total_iterations, "\n----------------------------\n"
+                print "[END] \n> total iterations", total_iterations, "\n----------------------------\n"
+                print "> temp", T, "iter", total_iterations, "cross", g.get_crossing_number()
 
                 # initialise graph to visualize program run
-                #x_axis = np.linspace(0, total_iterations+1, total_iterations/Properties.Kmax+1)
-                #tmp = utils.print_to_graph(x_axis,y_T,y_intersections,
-                #                     [min(x_axis),max(x_axis)],[1,max(y_intersections)],
-                #                     'results/'+str(Kn)+'/exp-'+str(experiment)+'_N-'+str(Kn))
+                if experiment == Properties.experiment_limit-1 or experiment == 0:
+                    # visualize track of first and last experiment
+                    x_axis = np.linspace(0, total_iterations+1, total_iterations/Properties.Kmax+1)
+                    tmp = utils.print_to_graph(x_axis,y_T,y_intersections,
+                                        [min(x_axis),max(x_axis)],[1,max(y_intersections)],
+                                        'results/'+str(Kn)+'/exp-'+str(experiment)+'_N-'+str(Kn)+'_'+str(i))
 
                 if i == 0: # not penalized
                     stds.append(np.std(y_intersections))
@@ -73,7 +76,7 @@ def main():
                     stds_penalized.append(np.std(y_intersections))
                     avgs_penalized.append(np.average(y_intersections))
 
-                if Properties.debug or Kn >= 8:
+                if Properties.debug or Kn >= 10:
                     utils.draw_graph(g,Kn)
 
 
