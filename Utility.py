@@ -10,6 +10,7 @@ import numpy as np
 
 from Vertex import Vertex
 from Properties import Properties
+from plotly.graph_objs import *
 
 class Utility:
     'Class w/ utility functions'
@@ -131,7 +132,7 @@ class Utility:
         nx.draw_networkx(initialGraph, pos)
         plt.show()
 
-    def print_to_graph(self, x_axis, y_T, y_1, y_2, y_3, x_range, y_range,
+    def print_to_graph(self, x_axis, y_T, y_1, y_2, y_vars, y_3, x_range, y_range,
                        name, xlab='Generations', ylab='Normalized to (0,1)',
                        ln1_title='Temperature', ln2_title='Standard deviation', title=None,
                        url=None, normalization=True):
@@ -151,7 +152,7 @@ class Utility:
 
         # normalized
         if normalization:
-            norm = max(y_T,y_1,y_2,y_3)
+            norm = min(y_T,y_1,y_2,y_3)
             y_T = go.Scatter(
                 x=x_axis, y=[float(i) / max(norm) for i in y_T], # normalized
                 name=ln1_title
@@ -170,7 +171,6 @@ class Utility:
             )
 
         else:
-            max_intersect = max(y_1)
             y_T = go.Scatter(
                 x=x_axis, y=y_T, name=ln1_title
             )
@@ -183,8 +183,12 @@ class Utility:
             y_3 = go.Scatter(
                 x=x_axis, y=y_3, name='Fitness'
             )
+            y_vars = go.Scatter(
+                x=x_axis, y=y_vars, name='Variance',
+                mode='markers'
+            )
 
-        data = [y_T, y_1, y_2, y_3]
+        data = [y_T, y_1, y_2, y_3, y_vars]
 
         if title == None:
             title = str.split(name, '-')[2] + ' Vertices'
@@ -233,3 +237,20 @@ class Utility:
         plotly.offline.plot(fig,filename=name)
         # if url == True:
         #     plot_url = plotly.plot(fig, filename=name)
+
+    def vis_stats(self,x_axis,t,all_costs,name):
+        y_t = []
+        for i in range(len(t)):  # sample temperature over x-axis
+            for j in range(len(x_axis) / len(t)):
+                y_t.append(t[i])
+        avg = np.average(all_costs) # calculate average of all costs (fitness)
+        avgs = []
+        for i in range(len(x_axis)): # sample avgs over x-axis
+            avgs.append(avg)
+
+
+
+
+        self.print_to_graph(x_axis,y_t,avgs,avgs,avgs,avgs,
+                            [min(x_axis),max(x_axis)], None, name,
+                            normalization=False)
